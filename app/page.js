@@ -43,7 +43,8 @@ export default function LoginPage() {
     <div className="login-container">
       <form className="login-card" onSubmit={handleLogin}>
         <div className="login-logo">
-          <h1>Edwin LLC</h1>
+          <img src="/logo.png" alt="EC ADINO REALTY LLC" style={{ width: 64, height: 64, borderRadius: '12px', marginBottom: '12px' }} />
+          <h1>EC ADINO REALTY LLC</h1>
           <p>Sistema de bienes raíces e inversiones</p>
         </div>
 
@@ -106,7 +107,17 @@ export default function LoginPage() {
         >
           {loading ? <span className="spinner"></span> : 'Entrar al sistema'}
         </button>
+
+        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+          Al iniciar sesión aceptas nuestros{' '}
+          <a href="/terminos" target="_blank" style={{ color: 'var(--accent-primary-light)', textDecoration: 'none' }}>Términos de servicio</a>
+          {' '}y{' '}
+          <a href="/privacidad" target="_blank" style={{ color: 'var(--accent-primary-light)', textDecoration: 'none' }}>Política de privacidad</a>.
+        </div>
       </form>
+      <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '11px', color: 'var(--text-muted)' }}>
+        © {new Date().getFullYear()} EC ADINO REALTY LLC. Todos los derechos reservados.
+      </div>
     </div>
   );
 }

@@ -49,7 +49,7 @@ export default function DashboardPage() {
     <>
       <div className="page-header">
         <div className="page-title">Dashboard</div>
-        <div className="page-subtitle">Panel general del sistema · Edwin LLC</div>
+        <div className="page-subtitle">Panel general del sistema · EC ADINO REALTY LLC</div>
       </div>
 
       {viewAsUserId && stats?.viewingAs && (

@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Edwin LLC · CRM',
-  description: 'Sistema de gestión de bienes raíces e inversiones — Edwin LLC',
+  title: 'EC ADINO REALTY LLC · CRM',
+  description: 'Sistema de gestión de bienes raíces e inversiones — EC ADINO REALTY LLC',
 };
 
 export default function RootLayout({ children }) {

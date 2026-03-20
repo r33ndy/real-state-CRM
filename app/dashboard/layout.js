@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -91,7 +92,10 @@ export default function DashboardLayout({ children }) {
     <div className="app-layout">
       <div className="sidebar">
         <div className="sidebar-header">
-          <div className="sidebar-logo">Edwin LLC</div>
+          <div className="sidebar-logo">
+            <Image src="/logo.png" alt="EC ADINO REALTY LLC" width={40} height={40} style={{ borderRadius: '8px' }} />
+            <span>EC ADINO REALTY LLC</span>
+          </div>
           <div className="sidebar-user">{user?.name}</div>
           <div className={`sidebar-badge ${isAdmin ? 'badge-admin' : 'badge-employee'}`}>
             {isAdmin ? 'Administrador' : 'Usuario'}
