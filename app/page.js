@@ -1,66 +1,112 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
+export default function LoginPage() {
+  const router = useRouter();
+  const [role, setRole] = useState('admin');
+  const [email, setEmail] = useState('admin@edwinllc.com');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  function handleRoleChange(r) {
+    setRole(r);
+    setEmail(r === 'admin' ? 'admin@edwinllc.com' : 'carlos@edwinllc.com');
+    setError('');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Error al iniciar sesión');
+        setLoading(false);
+        return;
+      }
+      router.push('/dashboard');
+    } catch (err) {
+      setError('Error de conexión');
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="login-container">
+      <form className="login-card" onSubmit={handleLogin}>
+        <div className="login-logo">
+          <h1>Edwin LLC</h1>
+          <p>Sistema de bienes raíces e inversiones</p>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <label style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '8px', display: 'block' }}>
+          Tipo de acceso
+        </label>
+        <div className="role-selector">
+          <button
+            type="button"
+            className={`role-btn ${role === 'admin' ? 'selected' : ''}`}
+            onClick={() => handleRoleChange('admin')}
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            ⚙️ Administrador
+          </button>
+          <button
+            type="button"
+            className={`role-btn ${role === 'emp' ? 'selected' : ''}`}
+            onClick={() => handleRoleChange('emp')}
           >
-            Documentation
-          </a>
+            👤 Usuario
+          </button>
         </div>
-      </main>
+
+        <div className="field">
+          <label>Correo electrónico</label>
+          <input
+            type="email"
+            id="login-email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="correo@edwinllc.com"
+            required
+          />
+        </div>
+        <div className="field">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            id="login-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        {error && <div className="alert alert-error">{error}</div>}
+
+        <div className="access-note">
+          {role === 'admin'
+            ? 'Acceso completo al sistema incluyendo gestión de usuarios y panel administrativo.'
+            : 'Acceso para registrar mercado, profesionales, contratistas e inversionistas. Solo verás los datos que tú registres.'}
+        </div>
+
+        <button
+          type="submit"
+          className="btn btn-primary btn-full"
+          disabled={loading}
+          style={{ marginTop: '20px', padding: '12px' }}
+        >
+          {loading ? <span className="spinner"></span> : 'Entrar al sistema'}
+        </button>
+      </form>
     </div>
   );
 }
