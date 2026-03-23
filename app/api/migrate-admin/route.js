@@ -1,7 +1,10 @@
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 
-export async function POST() {
+export async function GET() { return migrate(); }
+export async function POST() { return migrate(); }
+
+async function migrate() {
   try {
     const supabase = getSupabaseAdmin();
     
