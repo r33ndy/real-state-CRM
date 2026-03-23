@@ -865,6 +865,46 @@ textarea {
 }
 
 /* ═══════════════════════════════════════
+   ── Completion Percentage ──
+   ═══════════════════════════════════════ */
+
+.completion-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.completion-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.completion-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.completion-fill.low { background: var(--accent-red); }
+.completion-fill.mid { background: var(--accent-amber); }
+.completion-fill.high { background: var(--accent-green); }
+
+.completion-text {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 36px;
+  text-align: right;
+}
+
+.completion-text.low { color: var(--accent-red); }
+.completion-text.mid { color: var(--accent-amber); }
+.completion-text.high { color: var(--accent-green); }
+
+/* ═══════════════════════════════════════
    ── Empty State ──
    ═══════════════════════════════════════ */
 

@@ -4,6 +4,12 @@ import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 
 const CATEGORIES = ['Ingeniero', 'Arquitecto', 'Compañía de Título', 'Abogado', 'Inspector de Limpieza', 'Inspector'];
 import { US_STATES as STATES } from '@/lib/constants';
+const PROF_FIELDS = ['category', 'name', 'phone', 'email', 'company', 'city', 'state', 'notes'];
+function getCompletion(record, fields) {
+  const filled = fields.filter(f => record[f] !== null && record[f] !== undefined && record[f] !== '').length;
+  return Math.round((filled / fields.length) * 100);
+}
+function completionClass(pct) { return pct >= 80 ? 'high' : pct >= 50 ? 'mid' : 'low'; }
 
 export default function ProfesionalesPage() {
   const [professionals, setProfessionals] = useState([]);
@@ -86,10 +92,10 @@ export default function ProfesionalesPage() {
       <div className="card">
         <div className="card-title" style={{ marginBottom: '16px' }}>Profesionales registrados</div>
         <div className="table-container"><table className="table">
-          <thead><tr><th>Nombre</th><th>Categoría</th><th>Ciudad</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Nombre</th><th>Categoría</th><th>Ciudad</th><th>Teléfono</th><th>Email</th><th>Completado</th><th>Acciones</th></tr></thead>
           <tbody>
-            {professionals.map(pro => (<tr key={pro.id}><td style={{ cursor: 'pointer' }} onClick={() => openDetail(pro)}>{pro.name}</td><td><span className="tag">{pro.category}</span></td><td>{pro.city}{pro.state ? `, ${pro.state}` : ''}</td><td>{pro.phone || '—'}</td><td style={{ color: 'var(--text-secondary)' }}>{pro.email || '—'}</td><td><div className="actions-cell"><button className="btn btn-sm" onClick={() => openDetail(pro)}>Ver</button><button className="btn btn-sm btn-danger" onClick={() => handleDelete(pro.id)}>Eliminar</button></div></td></tr>))}
-            {professionals.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin profesionales registrados</td></tr>}
+            {professionals.map(pro => (<tr key={pro.id}><td style={{ cursor: 'pointer' }} onClick={() => openDetail(pro)}>{pro.name}</td><td><span className="tag">{pro.category}</span></td><td>{pro.city}{pro.state ? `, ${pro.state}` : ''}</td><td>{pro.phone || '—'}</td><td style={{ color: 'var(--text-secondary)' }}>{pro.email || '—'}</td><td><div className="completion-bar"><div className="completion-track"><div className={`completion-fill ${completionClass(getCompletion(pro, PROF_FIELDS))}`} style={{ width: `${getCompletion(pro, PROF_FIELDS)}%` }}></div></div><span className={`completion-text ${completionClass(getCompletion(pro, PROF_FIELDS))}`}>{getCompletion(pro, PROF_FIELDS)}%</span></div></td><td><div className="actions-cell"><button className="btn btn-sm" onClick={() => openDetail(pro)}>Ver</button><button className="btn btn-sm btn-danger" onClick={() => handleDelete(pro.id)}>Eliminar</button></div></td></tr>))}
+            {professionals.length === 0 && <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin profesionales registrados</td></tr>}
           </tbody>
         </table></div>
       </div>

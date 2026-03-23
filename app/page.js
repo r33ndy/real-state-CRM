@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
   const router = useRouter();
   const [role, setRole] = useState('admin');
-  const [email, setEmail] = useState('admin@edwinllc.com');
+  const [email, setEmail] = useState('edwin@ecadino.com');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   function handleRoleChange(r) {
     setRole(r);
-    setEmail(r === 'admin' ? 'admin@edwinllc.com' : 'carlos@edwinllc.com');
+    setEmail(r === 'admin' ? 'edwin@ecadino.com' : 'carlos@edwinllc.com');
     setError('');
   }
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
             id="login-email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="correo@edwinllc.com"
+            placeholder="correo@ecadino.com"
             required
           />
         </div>

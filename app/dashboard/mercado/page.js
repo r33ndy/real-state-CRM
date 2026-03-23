@@ -3,6 +3,13 @@ import { useEffect, useState } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 import { US_STATES as STATES } from '@/lib/constants';
 const CRIME_LEVELS = ['Bajo', 'Moderado', 'Alto'];
+const MARKET_FIELDS = ['state', 'city', 'population', 'avg_price', 'days_on_market', 'crime_index'];
+
+function getCompletion(record, fields) {
+  const filled = fields.filter(f => record[f] !== null && record[f] !== undefined && record[f] !== '').length;
+  return Math.round((filled / fields.length) * 100);
+}
+function completionClass(pct) { return pct >= 80 ? 'high' : pct >= 50 ? 'mid' : 'low'; }
 
 export default function MercadoPage() {
   const [evaluations, setEvaluations] = useState([]);
@@ -120,17 +127,18 @@ export default function MercadoPage() {
         <div className="card-title" style={{ marginBottom: '16px' }}>Ciudades registradas</div>
         <div className="table-container">
           <table className="table">
-            <thead><tr><th>Ciudad</th><th>Estado</th><th>Población</th><th>Precio prom.</th><th>Días</th><th>Crimen</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Ciudad</th><th>Estado</th><th>Población</th><th>Precio prom.</th><th>Días</th><th>Crimen</th><th>Completado</th><th>Acciones</th></tr></thead>
             <tbody>
               {evaluations.map(ev => (
                 <tr key={ev.id}>
                   <td style={{ cursor: 'pointer' }} onClick={() => openDetail(ev)}>{ev.city}</td>
                   <td>{ev.state}</td><td>{ev.population || '—'}</td><td>{ev.avg_price || '—'}</td><td>{ev.days_on_market || '—'}</td>
                   <td><span className={`badge ${getCrimeBadge(ev.crime_index)}`}>{ev.crime_index}</span></td>
+                  <td><div className="completion-bar"><div className="completion-track"><div className={`completion-fill ${completionClass(getCompletion(ev, MARKET_FIELDS))}`} style={{ width: `${getCompletion(ev, MARKET_FIELDS)}%` }}></div></div><span className={`completion-text ${completionClass(getCompletion(ev, MARKET_FIELDS))}`}>{getCompletion(ev, MARKET_FIELDS)}%</span></div></td>
                   <td><div className="actions-cell"><button className="btn btn-sm" onClick={() => openDetail(ev)}>Ver</button><button className="btn btn-sm btn-danger" onClick={() => handleDelete(ev.id)}>Eliminar</button></div></td>
                 </tr>
               ))}
-              {evaluations.length === 0 && <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin evaluaciones registradas</td></tr>}
+              {evaluations.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin evaluaciones registradas</td></tr>}
             </tbody>
           </table>
         </div>

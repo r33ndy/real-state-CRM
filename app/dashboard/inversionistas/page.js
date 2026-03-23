@@ -5,6 +5,12 @@ import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 const STRATEGIES = ['Fix and Flip', 'Wholesale', 'Renta', 'Mixto'];
 const PAYMENT_METHODS = ['Hard Money', 'Cash', 'Financiamiento', 'Mixto'];
 import { US_STATES as STATES } from '@/lib/constants';
+const INVESTOR_FIELDS = ['name', 'email', 'phone', 'investment_area', 'property_type', 'strategy', 'budget', 'payment_method', 'closing_time', 'max_simultaneous_projects', 'city', 'state', 'notes'];
+function getCompletion(record, fields) {
+  const filled = fields.filter(f => record[f] !== null && record[f] !== undefined && record[f] !== '').length;
+  return Math.round((filled / fields.length) * 100);
+}
+function completionClass(pct) { return pct >= 80 ? 'high' : pct >= 50 ? 'mid' : 'low'; }
 
 export default function InversionistasPage() {
   const [investors, setInvestors] = useState([]);
@@ -169,6 +175,7 @@ export default function InversionistasPage() {
                 <th>Forma de pago</th>
                 <th>Cierre</th>
                 <th>Proyectos</th>
+                <th>Completado</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -184,6 +191,7 @@ export default function InversionistasPage() {
                   <td><span className={`badge ${inv.payment_method === 'Cash' ? 'badge-green' : 'badge-amber'}`}>{inv.payment_method}</span></td>
                   <td>{inv.closing_time || '—'}</td>
                   <td>{inv.max_simultaneous_projects || '—'}</td>
+                  <td><div className="completion-bar"><div className="completion-track"><div className={`completion-fill ${completionClass(getCompletion(inv, INVESTOR_FIELDS))}`} style={{ width: `${getCompletion(inv, INVESTOR_FIELDS)}%` }}></div></div><span className={`completion-text ${completionClass(getCompletion(inv, INVESTOR_FIELDS))}`}>{getCompletion(inv, INVESTOR_FIELDS)}%</span></div></td>
                   <td>
                     <div className="actions-cell">
                       <button className="btn btn-sm" onClick={() => openDetail(inv)}>Ver</button>
@@ -193,7 +201,7 @@ export default function InversionistasPage() {
                 </tr>
               ))}
               {investors.length === 0 && (
-                <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin inversionistas registrados</td></tr>
+                <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin inversionistas registrados</td></tr>
               )}
             </tbody>
           </table>

@@ -4,6 +4,16 @@ import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 
 const SPECIALTIES = ['Electricista', 'Plomero', 'Contratista General', 'Pintura', 'HVAC', 'Techos', 'Pisos', 'Carpintería', 'Demolición', 'Paisajismo'];
 import { US_STATES as STATES } from '@/lib/constants';
+const CONTRACTOR_FIELDS = ['name', 'company', 'phone', 'email', 'specialty', 'city', 'state', 'work_area', 'max_simultaneous_projects', 'permit_days', 'does_new_construction', 'has_license', 'has_insurance', 'has_own_team', 'notes'];
+function getCompletion(record, fields) {
+  const filled = fields.filter(f => {
+    const v = record[f];
+    if (typeof v === 'boolean') return true;
+    return v !== null && v !== undefined && v !== '' && v !== 0;
+  }).length;
+  return Math.round((filled / fields.length) * 100);
+}
+function completionClass(pct) { return pct >= 80 ? 'high' : pct >= 50 ? 'mid' : 'low'; }
 
 export default function ContratistasPage() {
   const [contractors, setContractors] = useState([]);
@@ -119,7 +129,7 @@ export default function ContratistasPage() {
         <div className="card-title" style={{ marginBottom: '16px' }}>Contratistas registrados</div>
         <div className="table-container">
           <table className="table">
-            <thead><tr><th>Nombre</th><th>Especialidad</th><th>Ciudad</th><th>Licencia</th><th>Seguro</th><th>Equipo propio</th><th>Proyectos</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>Especialidad</th><th>Ciudad</th><th>Licencia</th><th>Seguro</th><th>Equipo propio</th><th>Proyectos</th><th>Completado</th><th>Acciones</th></tr></thead>
             <tbody>
               {contractors.map(con => (
                 <tr key={con.id}>
@@ -130,10 +140,11 @@ export default function ContratistasPage() {
                   <td><span className={`badge ${con.has_insurance ? 'badge-green' : 'badge-amber'}`}>{con.has_insurance ? 'Sí' : 'No'}</span></td>
                   <td><span className={`badge ${con.has_own_team ? 'badge-green' : 'badge-amber'}`}>{con.has_own_team ? 'Propio' : 'Sub'}</span></td>
                   <td>{con.max_simultaneous_projects || '—'}</td>
+                  <td><div className="completion-bar"><div className="completion-track"><div className={`completion-fill ${completionClass(getCompletion(con, CONTRACTOR_FIELDS))}`} style={{ width: `${getCompletion(con, CONTRACTOR_FIELDS)}%` }}></div></div><span className={`completion-text ${completionClass(getCompletion(con, CONTRACTOR_FIELDS))}`}>{getCompletion(con, CONTRACTOR_FIELDS)}%</span></div></td>
                   <td><div className="actions-cell"><button className="btn btn-sm" onClick={() => openDetail(con)}>Ver</button><button className="btn btn-sm btn-danger" onClick={() => handleDelete(con.id)}>Eliminar</button></div></td>
                 </tr>
               ))}
-              {contractors.length === 0 && <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin contratistas registrados</td></tr>}
+              {contractors.length === 0 && <tr><td colSpan={9} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sin contratistas registrados</td></tr>}
             </tbody>
           </table>
         </div>

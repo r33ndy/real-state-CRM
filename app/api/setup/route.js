@@ -89,8 +89,8 @@ export async function POST() {
     const { error: e5 } = await supabase
       .from('users')
       .upsert({
-        email: 'admin@edwinllc.com',
-        name: 'Edwin Admin',
+        email: 'edwin@ecadino.com',
+        name: 'Edwin',
         password_hash: adminHash,
         phone: '+1 (305) 555-0100',
         role: 'admin',
