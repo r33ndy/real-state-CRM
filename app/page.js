@@ -57,7 +57,7 @@ export default function LoginPage() {
             className={`role-btn ${role === 'admin' ? 'selected' : ''}`}
             onClick={() => handleRoleChange('admin')}
           >
-            ⚙️ Administrador
+            ⚙️ Edwin
           </button>
           <button
             type="button"

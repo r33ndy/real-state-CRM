@@ -98,7 +98,7 @@ export default function DashboardLayout({ children }) {
           </div>
           <div className="sidebar-user">{user?.name}</div>
           <div className={`sidebar-badge ${isAdmin ? 'badge-admin' : 'badge-employee'}`}>
-            {isAdmin ? 'Administrador' : 'Usuario'}
+            {isAdmin ? 'Edwin' : 'Usuario'}
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }) {
               onChange={e => handleViewAsChange(e.target.value)}
               style={{ width: '100%', fontSize: '12px', padding: '6px 8px' }}
             >
-              <option value="">Todos (Admin)</option>
+              <option value="">Todos (Edwin)</option>
               {employees.map(emp => (
                 <option key={emp.id} value={emp.id}>{emp.name}</option>
               ))}
