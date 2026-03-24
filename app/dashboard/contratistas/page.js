@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
+import ProgressSummary from '@/components/ProgressSummary';
 
 const SPECIALTIES = ['Electricista', 'Plomero', 'Contratista General', 'Pintura', 'HVAC', 'Techos', 'Pisos', 'Carpintería', 'Demolición', 'Paisajismo'];
 import { US_STATES as STATES } from '@/lib/constants';
@@ -90,8 +91,9 @@ export default function ContratistasPage() {
   return (
     <>
       <div className="page-header">
-        <div className="page-title">Directorio de contratistas</div>
-        <div className="page-subtitle">Especialidades, capacidad y disponibilidad</div>
+        <div><div className="page-title">Directorio de contratistas</div>
+        <div className="page-subtitle">Especialidades, capacidad y disponibilidad</div></div>
+        <ProgressSummary records={contractors} fields={CONTRACTOR_FIELDS} label="Progreso contratistas" />
       </div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}

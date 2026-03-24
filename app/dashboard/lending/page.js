@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
+import ProgressSummary from '@/components/ProgressSummary';
 
 const LOAN_TYPES = ['Hard Money', 'Convencional', 'FHA', 'VA', 'USDA', 'Bridge Loan', 'DSCR', 'Comercial', 'Otro'];
 const LENDING_FIELDS = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'notes'];
@@ -72,7 +73,7 @@ export default function LendingPage() {
 
   return (
     <>
-      <div className="page-header"><div className="page-title">Lending</div><div className="page-subtitle">Directorio de compañías de préstamos</div></div>
+      <div className="page-header"><div><div className="page-title">Lending</div><div className="page-subtitle">Directorio de compañías de préstamos</div></div><ProgressSummary records={records} fields={LENDING_FIELDS} label="Progreso lending" /></div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}
       {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}

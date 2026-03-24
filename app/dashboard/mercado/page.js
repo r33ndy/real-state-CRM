@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
+import ProgressSummary from '@/components/ProgressSummary';
 import { US_STATES as STATES } from '@/lib/constants';
 const CRIME_LEVELS = ['Bajo', 'Moderado', 'Alto'];
 const MARKET_FIELDS = ['state', 'city', 'population', 'avg_price', 'days_on_market', 'crime_index'];
@@ -96,8 +97,9 @@ export default function MercadoPage() {
   return (
     <>
       <div className="page-header">
-        <div className="page-title">Evaluación de mercado</div>
-        <div className="page-subtitle">Registrar y consultar datos por ciudad</div>
+        <div><div className="page-title">Evaluación de mercado</div>
+        <div className="page-subtitle">Registrar y consultar datos por ciudad</div></div>
+        <ProgressSummary records={evaluations} fields={MARKET_FIELDS} label="Progreso mercado" />
       </div>
 
       {isViewingOther && (

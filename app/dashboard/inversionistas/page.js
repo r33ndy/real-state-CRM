@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
+import ProgressSummary from '@/components/ProgressSummary';
 
 const STRATEGIES = ['Fix and Flip', 'Wholesale', 'Renta', 'Mixto'];
 const PAYMENT_METHODS = ['Hard Money', 'Cash', 'Financiamiento', 'Mixto'];
@@ -86,8 +87,9 @@ export default function InversionistasPage() {
   return (
     <>
       <div className="page-header">
-        <div className="page-title">Directorio de inversionistas</div>
-        <div className="page-subtitle">Registro de inversionistas, estrategia y capacidad</div>
+        <div><div className="page-title">Directorio de inversionistas</div>
+        <div className="page-subtitle">Registro de inversionistas, estrategia y capacidad</div></div>
+        <ProgressSummary records={investors} fields={INVESTOR_FIELDS} label="Progreso inversionistas" />
       </div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}
