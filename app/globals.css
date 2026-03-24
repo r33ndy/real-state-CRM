@@ -715,6 +715,12 @@ textarea {
   border: 1px solid rgba(245, 158, 11, 0.20);
 }
 
+.badge-blue {
+  background: rgba(59, 130, 246, 0.10);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.20);
+}
+
 .badge-red {
   background: rgba(244, 63, 94, 0.10);
   color: var(--accent-red);

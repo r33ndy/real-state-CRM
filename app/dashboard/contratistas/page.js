@@ -191,6 +191,8 @@ export default function ContratistasPage() {
                     <div className="field"><label>Email</label><input type="email" value={editForm.email || ''} onChange={e => updateEditField('email', e.target.value)} /></div>
                     <div className="field"><label>Especialidad</label><select value={editForm.specialty || ''} onChange={e => updateEditField('specialty', e.target.value)}>{SPECIALTIES.map(s => <option key={s}>{s}</option>)}</select></div>
                     <div className="field"><label>Área de trabajo</label><input type="text" value={editForm.work_area || ''} onChange={e => updateEditField('work_area', e.target.value)} /></div>
+                    <div className="field"><label>Estado</label><select value={editForm.state || ''} onChange={e => updateEditField('state', e.target.value)}><option value="">--</option>{STATES.map(s => <option key={s}>{s}</option>)}</select></div>
+                    <div className="field"><label>Ciudad</label><input type="text" value={editForm.city || ''} onChange={e => updateEditField('city', e.target.value)} /></div>
                     <div className="field"><label>Proyectos simultáneos</label><input type="number" value={editForm.max_simultaneous_projects || ''} onChange={e => updateEditField('max_simultaneous_projects', e.target.value)} /></div>
                     <div className="field"><label>Días para permisos</label><input type="number" value={editForm.permit_days || ''} onChange={e => updateEditField('permit_days', e.target.value)} /></div>
                   </div>

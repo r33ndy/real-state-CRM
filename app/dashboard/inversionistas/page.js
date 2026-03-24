@@ -252,6 +252,8 @@ export default function InversionistasPage() {
                     <div className="field"><label>Forma de pago</label><select value={editForm.payment_method || ''} onChange={e => updateEditField('payment_method', e.target.value)}>{PAYMENT_METHODS.map(p => <option key={p}>{p}</option>)}</select></div>
                     <div className="field"><label>Tiempo de cierre</label><input type="text" value={editForm.closing_time || ''} onChange={e => updateEditField('closing_time', e.target.value)} /></div>
                     <div className="field"><label>Proyectos simultáneos</label><input type="number" value={editForm.max_simultaneous_projects || ''} onChange={e => updateEditField('max_simultaneous_projects', e.target.value)} /></div>
+                    <div className="field"><label>Estado</label><select value={editForm.state || ''} onChange={e => updateEditField('state', e.target.value)}><option value="">--</option>{STATES.map(s => <option key={s}>{s}</option>)}</select></div>
+                    <div className="field"><label>Ciudad</label><input type="text" value={editForm.city || ''} onChange={e => updateEditField('city', e.target.value)} /></div>
                   </div>
                   <div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div>
                 </div>

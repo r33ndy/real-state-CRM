@@ -84,6 +84,48 @@ export async function POST() {
       `
     });
 
+    // Create lending table
+    const { error: e4b } = await supabase.rpc('exec_sql', {
+      query: `
+        CREATE TABLE IF NOT EXISTS lending (
+          id SERIAL PRIMARY KEY,
+          company VARCHAR(255) NOT NULL,
+          phone VARCHAR(50),
+          email VARCHAR(255),
+          loan_type VARCHAR(100),
+          max_loan_amount VARCHAR(50),
+          ltv_percentage VARCHAR(20),
+          estimated_closing_time VARCHAR(100),
+          interest_rate VARCHAR(20),
+          max_loan_term VARCHAR(50),
+          min_loan_term VARCHAR(50),
+          min_loan_amount VARCHAR(50),
+          origination_points VARCHAR(20),
+          notes TEXT,
+          created_by INTEGER REFERENCES users(id),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `
+    });
+
+    // Create agents table
+    const { error: e4c } = await supabase.rpc('exec_sql', {
+      query: `
+        CREATE TABLE IF NOT EXISTS agents (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          phone VARCHAR(50),
+          email VARCHAR(255),
+          state VARCHAR(100),
+          city VARCHAR(100),
+          agent_type VARCHAR(50) NOT NULL DEFAULT 'Listing Agent',
+          notes TEXT,
+          created_by INTEGER REFERENCES users(id),
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `
+    });
+
     // Seed admin user
     const adminHash = await hashPassword('admin123');
     const { error: e5 } = await supabase

@@ -84,6 +84,8 @@ export default function DashboardLayout({ children }) {
     { id: 'profesionales', label: 'Profesionales', href: '/dashboard/profesionales', color: '#3b82f6', icon: '👔' },
     { id: 'contratistas', label: 'Contratistas', href: '/dashboard/contratistas', color: '#ef4444', icon: '🔧' },
     { id: 'inversionistas', label: 'Inversionistas', href: '/dashboard/inversionistas', color: '#8b5cf6', icon: '💰' },
+    { id: 'lending', label: 'Lending', href: '/dashboard/lending', color: '#10b981', icon: '🏦' },
+    { id: 'agents', label: 'Agents', href: '/dashboard/agents', color: '#06b6d4', icon: '🧑‍💼' },
     { section: 'Cuenta' },
     { id: 'perfil', label: 'Mi perfil', href: '/dashboard/perfil', color: '#64748b', icon: '⚙️' },
   );
