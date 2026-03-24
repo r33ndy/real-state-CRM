@@ -99,7 +99,7 @@ export default function MercadoPage() {
       <div className="page-header">
         <div><div className="page-title">Evaluación de mercado</div>
         <div className="page-subtitle">Registrar y consultar datos por ciudad</div></div>
-        <ProgressSummary records={evaluations} fields={MARKET_FIELDS} label="Progreso mercado" />
+        {isViewingOther && <ProgressSummary records={evaluations} fields={MARKET_FIELDS} label="Progreso mercado" />}
       </div>
 
       {isViewingOther && (

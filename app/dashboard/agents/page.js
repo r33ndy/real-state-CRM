@@ -78,7 +78,7 @@ export default function AgentsPage() {
 
   return (
     <>
-      <div className="page-header"><div><div className="page-title">Agents</div><div className="page-subtitle">Directorio de agentes inmobiliarios</div></div><ProgressSummary records={agents} fields={AGENT_FIELDS} label="Progreso agents" /></div>
+      <div className="page-header"><div><div className="page-title">Agents</div><div className="page-subtitle">Directorio de agentes inmobiliarios</div></div>{isViewingOther && <ProgressSummary records={agents} fields={AGENT_FIELDS} label="Progreso agents" />}</div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}
       {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}

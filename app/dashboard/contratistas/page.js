@@ -93,7 +93,7 @@ export default function ContratistasPage() {
       <div className="page-header">
         <div><div className="page-title">Directorio de contratistas</div>
         <div className="page-subtitle">Especialidades, capacidad y disponibilidad</div></div>
-        <ProgressSummary records={contractors} fields={CONTRACTOR_FIELDS} label="Progreso contratistas" />
+        {isViewingOther && <ProgressSummary records={contractors} fields={CONTRACTOR_FIELDS} label="Progreso contratistas" />}
       </div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}

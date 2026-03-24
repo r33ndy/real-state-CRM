@@ -89,7 +89,7 @@ export default function InversionistasPage() {
       <div className="page-header">
         <div><div className="page-title">Directorio de inversionistas</div>
         <div className="page-subtitle">Registro de inversionistas, estrategia y capacidad</div></div>
-        <ProgressSummary records={investors} fields={INVESTOR_FIELDS} label="Progreso inversionistas" />
+        {isViewingOther && <ProgressSummary records={investors} fields={INVESTOR_FIELDS} label="Progreso inversionistas" />}
       </div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}

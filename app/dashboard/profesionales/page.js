@@ -68,7 +68,7 @@ export default function ProfesionalesPage() {
 
   return (
     <>
-      <div className="page-header"><div><div className="page-title">Directorio de profesionales</div><div className="page-subtitle">Ingenieros, Arquitectos, Compañías de Título, Abogados, Inspectores</div></div><ProgressSummary records={professionals} fields={PROF_FIELDS} label="Progreso profesionales" /></div>
+      <div className="page-header"><div><div className="page-title">Directorio de profesionales</div><div className="page-subtitle">Ingenieros, Arquitectos, Compañías de Título, Abogados, Inspectores</div></div>{isViewingOther && <ProgressSummary records={professionals} fields={PROF_FIELDS} label="Progreso profesionales" />}</div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}
       {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}
