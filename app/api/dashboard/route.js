@@ -24,15 +24,19 @@ export async function GET(request) {
   let prosQ = supabase.from('professionals').select('*');
   let consQ = supabase.from('contractors').select('*');
   let invQ = supabase.from('investors').select('*');
+  let lendQ = supabase.from('lending').select('*');
+  let agentQ = supabase.from('agents').select('*');
 
   if (filter) {
     marketQ = marketQ.eq('created_by', filter.created_by);
     prosQ = prosQ.eq('created_by', filter.created_by);
     consQ = consQ.eq('created_by', filter.created_by);
     invQ = invQ.eq('created_by', filter.created_by);
+    lendQ = lendQ.eq('created_by', filter.created_by);
+    agentQ = agentQ.eq('created_by', filter.created_by);
   }
 
-  const [marketRes, prosRes, consRes, invRes] = await Promise.all([marketQ, prosQ, consQ, invQ]);
+  const [marketRes, prosRes, consRes, invRes, lendRes, agentRes] = await Promise.all([marketQ, prosQ, consQ, invQ, lendQ, agentQ]);
 
   return NextResponse.json({
     employees: employees || [],
@@ -40,12 +44,16 @@ export async function GET(request) {
     professionals: prosRes.data || [],
     contractors: consRes.data || [],
     investors: invRes.data || [],
+    lending: lendRes.data || [],
+    agents: agentRes.data || [],
     counts: {
       employees: (employees || []).filter(u => u.status === 'active').length,
       markets: (marketRes.data || []).length,
       professionals: (prosRes.data || []).length,
       contractors: (consRes.data || []).length,
       investors: (invRes.data || []).length,
+      lending: (lendRes.data || []).length,
+      agents: (agentRes.data || []).length,
     },
     viewingAs: viewAsUserId ? (employees || []).find(e => e.id === parseInt(viewAsUserId)) : null,
   });

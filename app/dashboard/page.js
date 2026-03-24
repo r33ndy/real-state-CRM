@@ -82,6 +82,14 @@ export default function DashboardPage() {
           <div className="metric-value">{stats?.counts?.investors || 0}</div>
           <div className="metric-label">Inversionistas</div>
         </div>
+        <div className="metric-card">
+          <div className="metric-value">{stats?.counts?.lending || 0}</div>
+          <div className="metric-label">Lending</div>
+        </div>
+        <div className="metric-card">
+          <div className="metric-value">{stats?.counts?.agents || 0}</div>
+          <div className="metric-label">Agents</div>
+        </div>
       </div>
 
       <div className="grid-2">
