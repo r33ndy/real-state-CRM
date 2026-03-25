@@ -13,13 +13,10 @@ export async function GET(request) {
   let query = supabase.from('market_evaluations').select('*').order('created_at', { ascending: false });
 
   if (session.role === 'admin' && viewAsUserId) {
-    // Admin viewing as specific user
-    query = query.eq('created_by', viewAsUserId);
-  } else if (session.role !== 'admin') {
-    // Regular user sees only their own data
+    query = query.eq('created_by', parseInt(viewAsUserId));
+  } else {
     query = query.eq('created_by', session.id);
   }
-  // Admin without filter sees everything
 
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -38,6 +35,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Estado y ciudad son requeridos' }, { status: 400 });
     }
 
+    const ownerId = (session.role === 'admin' && body.created_for) ? parseInt(body.created_for) : session.id;
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('market_evaluations')
@@ -45,7 +44,7 @@ export async function POST(request) {
         state, city, population, avg_price,
         days_on_market: days_on_market ? parseInt(days_on_market) : null,
         crime_index,
-        created_by: session.id
+        created_by: ownerId
       })
       .select()
       .single();

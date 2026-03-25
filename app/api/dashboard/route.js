@@ -17,24 +17,15 @@ export async function GET(request) {
     .select('id, name, email, role, status')
     .eq('role', 'employee');
 
-  // Build filter for data queries
-  const filter = viewAsUserId ? { created_by: parseInt(viewAsUserId) } : null;
+  // Build filter — always filter by owner
+  const filterBy = viewAsUserId ? parseInt(viewAsUserId) : session.id;
 
-  let marketQ = supabase.from('market_evaluations').select('*');
-  let prosQ = supabase.from('professionals').select('*');
-  let consQ = supabase.from('contractors').select('*');
-  let invQ = supabase.from('investors').select('*');
-  let lendQ = supabase.from('lending').select('*');
-  let agentQ = supabase.from('agents').select('*');
-
-  if (filter) {
-    marketQ = marketQ.eq('created_by', filter.created_by);
-    prosQ = prosQ.eq('created_by', filter.created_by);
-    consQ = consQ.eq('created_by', filter.created_by);
-    invQ = invQ.eq('created_by', filter.created_by);
-    lendQ = lendQ.eq('created_by', filter.created_by);
-    agentQ = agentQ.eq('created_by', filter.created_by);
-  }
+  let marketQ = supabase.from('market_evaluations').select('*').eq('created_by', filterBy);
+  let prosQ = supabase.from('professionals').select('*').eq('created_by', filterBy);
+  let consQ = supabase.from('contractors').select('*').eq('created_by', filterBy);
+  let invQ = supabase.from('investors').select('*').eq('created_by', filterBy);
+  let lendQ = supabase.from('lending').select('*').eq('created_by', filterBy);
+  let agentQ = supabase.from('agents').select('*').eq('created_by', filterBy);
 
   const [marketRes, prosRes, consRes, invRes, lendRes, agentRes] = await Promise.all([marketQ, prosQ, consQ, invQ, lendQ, agentQ]);
 

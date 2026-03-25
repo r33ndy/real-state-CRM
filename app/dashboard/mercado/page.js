@@ -47,16 +47,17 @@ export default function MercadoPage() {
   async function handleSave(e) {
     e.preventDefault();
     setMessage(null);
+    const payload = { ...form };
+    if (viewAsUserId) payload.created_for = viewAsUserId;
     const res = await fetch('/api/market', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: 'Evaluación guardada exitosamente' });
-    // Only add to list if not viewing as another user
-    if (!viewAsUserId) setEvaluations(prev => [data.evaluation, ...prev]);
+    setEvaluations(prev => [data.evaluation, ...prev]);
     setForm({ state: '', city: '', population: '', avg_price: '', days_on_market: '', crime_index: 'Bajo' });
   }
 

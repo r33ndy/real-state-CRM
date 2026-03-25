@@ -13,8 +13,8 @@ export async function GET(request) {
   let query = supabase.from('professionals').select('*').order('created_at', { ascending: false });
 
   if (session.role === 'admin' && viewAsUserId) {
-    query = query.eq('created_by', viewAsUserId);
-  } else if (session.role !== 'admin') {
+    query = query.eq('created_by', parseInt(viewAsUserId));
+  } else {
     query = query.eq('created_by', session.id);
   }
 
@@ -35,10 +35,12 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Categoría y nombre son requeridos' }, { status: 400 });
     }
 
+    const ownerId = (session.role === 'admin' && body.created_for) ? parseInt(body.created_for) : session.id;
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('professionals')
-      .insert({ category, name, phone, email, company, city, state, notes, created_by: session.id })
+      .insert({ category, name, phone, email, company, city, state, notes, created_by: ownerId })
       .select()
       .single();
 

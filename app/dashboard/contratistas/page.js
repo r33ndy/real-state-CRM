@@ -49,15 +49,17 @@ export default function ContratistasPage() {
   async function handleSave(e) {
     e.preventDefault();
     setMessage(null);
+    const payload = { ...form };
+    if (viewAsUserId) payload.created_for = viewAsUserId;
     const res = await fetch('/api/contractors', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Contratista "${data.contractor.name}" registrado exitosamente` });
-    if (!viewAsUserId) setContractors(prev => [data.contractor, ...prev]);
+    setContractors(prev => [data.contractor, ...prev]);
     setForm({ name: '', company: '', phone: '', email: '', specialty: 'Electricista', city: '', state: '', work_area: '', max_simultaneous_projects: '', permit_days: '', does_new_construction: false, has_license: false, has_insurance: false, has_own_team: false, notes: '' });
   }
 

@@ -7,14 +7,15 @@ export async function GET(request) {
   if (!session) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
 
   const supabase = getSupabaseAdmin();
-  const url = new URL(request.url);
-  const viewAs = url.searchParams.get('viewAs');
+  const { searchParams } = new URL(request.url);
+  const viewAsUserId = searchParams.get('user_id');
 
   let query = supabase.from('lending').select('*').order('created_at', { ascending: false });
-  if (session.role !== 'admin') {
+
+  if (session.role === 'admin' && viewAsUserId) {
+    query = query.eq('created_by', parseInt(viewAsUserId));
+  } else {
     query = query.eq('created_by', session.id);
-  } else if (viewAs) {
-    query = query.eq('created_by', viewAs);
   }
 
   const { data, error } = await query;
@@ -29,6 +30,8 @@ export async function POST(request) {
   try {
     const body = await request.json();
     if (!body.company) return NextResponse.json({ error: 'La compañía es obligatoria' }, { status: 400 });
+
+    const ownerId = (session.role === 'admin' && body.created_for) ? parseInt(body.created_for) : session.id;
 
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
@@ -46,8 +49,9 @@ export async function POST(request) {
         min_loan_term: body.min_loan_term || null,
         min_loan_amount: body.min_loan_amount || null,
         origination_points: body.origination_points || null,
+        work_states: body.work_states || null,
         notes: body.notes || null,
-        created_by: session.id,
+        created_by: ownerId,
       })
       .select()
       .single();

@@ -36,11 +36,13 @@ export default function ProfesionalesPage() {
 
   async function handleSave(e) {
     e.preventDefault(); setMessage(null);
-    const res = await fetch('/api/professionals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+    const payload = { ...form };
+    if (viewAsUserId) payload.created_for = viewAsUserId;
+    const res = await fetch('/api/professionals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Profesional "${data.professional.name}" registrado exitosamente` });
-    if (!viewAsUserId) setProfessionals(prev => [data.professional, ...prev]);
+    setProfessionals(prev => [data.professional, ...prev]);
     setForm({ category: 'Ingeniero', name: '', phone: '', email: '', company: '', city: '', state: '', notes: '' });
   }
 

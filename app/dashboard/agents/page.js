@@ -38,11 +38,13 @@ export default function AgentsPage() {
 
   async function handleSave(e) {
     e.preventDefault(); setMessage(null);
-    const res = await fetch('/api/agents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+    const payload = { ...form };
+    if (viewAsUserId) payload.created_for = viewAsUserId;
+    const res = await fetch('/api/agents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Agente "${data.agent.name}" registrado exitosamente` });
-    if (!viewAsUserId) setAgents(prev => [data.agent, ...prev]);
+    setAgents(prev => [data.agent, ...prev]);
     setForm({ name: '', phone: '', email: '', state: '', city: '', agent_type: 'Listing Agent', notes: '' });
   }
 

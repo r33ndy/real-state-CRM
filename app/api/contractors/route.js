@@ -13,8 +13,8 @@ export async function GET(request) {
   let query = supabase.from('contractors').select('*').order('created_at', { ascending: false });
 
   if (session.role === 'admin' && viewAsUserId) {
-    query = query.eq('created_by', viewAsUserId);
-  } else if (session.role !== 'admin') {
+    query = query.eq('created_by', parseInt(viewAsUserId));
+  } else {
     query = query.eq('created_by', session.id);
   }
 
@@ -39,6 +39,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Nombre y especialidad son requeridos' }, { status: 400 });
     }
 
+    const ownerId = (session.role === 'admin' && body.created_for) ? parseInt(body.created_for) : session.id;
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('contractors')
@@ -52,7 +54,7 @@ export async function POST(request) {
         has_insurance: !!has_insurance,
         has_own_team: !!has_own_team,
         notes,
-        created_by: session.id
+        created_by: ownerId
       })
       .select()
       .single();

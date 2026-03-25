@@ -45,15 +45,17 @@ export default function InversionistasPage() {
   async function handleSave(e) {
     e.preventDefault();
     setMessage(null);
+    const payload = { ...form };
+    if (viewAsUserId) payload.created_for = viewAsUserId;
     const res = await fetch('/api/investors', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Inversionista "${data.investor.name}" registrado exitosamente` });
-    if (!viewAsUserId) setInvestors(prev => [data.investor, ...prev]);
+    setInvestors(prev => [data.investor, ...prev]);
     setForm({ name: '', email: '', phone: '', investment_area: '', property_type: '', strategy: 'Fix and Flip', budget: '', payment_method: 'Cash', closing_time: '', max_simultaneous_projects: '', city: '', state: '', notes: '' });
   }
 

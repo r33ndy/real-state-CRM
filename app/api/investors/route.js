@@ -13,8 +13,8 @@ export async function GET(request) {
   let query = supabase.from('investors').select('*').order('created_at', { ascending: false });
 
   if (session.role === 'admin' && viewAsUserId) {
-    query = query.eq('created_by', viewAsUserId);
-  } else if (session.role !== 'admin') {
+    query = query.eq('created_by', parseInt(viewAsUserId));
+  } else {
     query = query.eq('created_by', session.id);
   }
 
@@ -39,6 +39,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Nombre es requerido' }, { status: 400 });
     }
 
+    const ownerId = (session.role === 'admin' && body.created_for) ? parseInt(body.created_for) : session.id;
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('investors')
@@ -47,7 +49,7 @@ export async function POST(request) {
         strategy, budget, payment_method, closing_time,
         max_simultaneous_projects: max_simultaneous_projects ? parseInt(max_simultaneous_projects) : null,
         city, state, notes,
-        created_by: session.id
+        created_by: ownerId
       })
       .select()
       .single();

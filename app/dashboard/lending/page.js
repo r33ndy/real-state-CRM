@@ -4,7 +4,7 @@ import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 import ProgressSummary from '@/components/ProgressSummary';
 
 const LOAN_TYPES = ['Hard Money', 'Convencional', 'FHA', 'VA', 'USDA', 'Bridge Loan', 'DSCR', 'Comercial', 'Otro'];
-const LENDING_FIELDS = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'notes'];
+const LENDING_FIELDS = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'work_states', 'notes'];
 
 function getCompletion(record, fields) {
   const filled = fields.filter(f => record[f] !== null && record[f] !== undefined && record[f] !== '').length;
@@ -25,7 +25,7 @@ export default function LendingPage() {
     company: '', phone: '', email: '', loan_type: 'Hard Money',
     max_loan_amount: '', ltv_percentage: '', estimated_closing_time: '',
     interest_rate: '', max_loan_term: '', min_loan_term: '',
-    min_loan_amount: '', origination_points: '', notes: ''
+    min_loan_amount: '', origination_points: '', work_states: '', notes: ''
   });
 
   useEffect(() => { fetch('/api/auth/me').then(r => r.json()).then(data => setUser(data.user)); }, []);
@@ -41,12 +41,14 @@ export default function LendingPage() {
 
   async function handleSave(e) {
     e.preventDefault(); setMessage(null);
-    const res = await fetch('/api/lending', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+    const payload = { ...form };
+    if (viewAsUserId) payload.created_for = viewAsUserId;
+    const res = await fetch('/api/lending', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const data = await res.json();
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Lending "${data.lending.company}" registrado exitosamente` });
-    if (!viewAsUserId) setRecords(prev => [data.lending, ...prev]);
-    setForm({ company: '', phone: '', email: '', loan_type: 'Hard Money', max_loan_amount: '', ltv_percentage: '', estimated_closing_time: '', interest_rate: '', max_loan_term: '', min_loan_term: '', min_loan_amount: '', origination_points: '', notes: '' });
+    setRecords(prev => [data.lending, ...prev]);
+    setForm({ company: '', phone: '', email: '', loan_type: 'Hard Money', max_loan_amount: '', ltv_percentage: '', estimated_closing_time: '', interest_rate: '', max_loan_term: '', min_loan_term: '', min_loan_amount: '', origination_points: '', work_states: '', notes: '' });
   }
 
   async function handleDelete(id) {
@@ -99,6 +101,7 @@ export default function LendingPage() {
             <div className="field"><label>Monto Mínimo de Préstamo</label><input type="text" placeholder="Ej. $50,000" value={form.min_loan_amount} onChange={e => updateField('min_loan_amount', e.target.value)} /></div>
             <div className="field"><label>Punto de Originario</label><input type="text" placeholder="Ej. 2 puntos" value={form.origination_points} onChange={e => updateField('origination_points', e.target.value)} /></div>
           </div>
+          <div className="field"><label>Estados donde Trabajan</label><input type="text" placeholder="Ej. Florida, Texas, New York" value={form.work_states} onChange={e => updateField('work_states', e.target.value)} /></div>
           <div className="field"><label>Notas</label><textarea rows="2" placeholder="Observaciones adicionales..." value={form.notes} onChange={e => updateField('notes', e.target.value)}></textarea></div>
           <div className="btn-group"><button type="submit" className="btn btn-primary">Guardar lending</button></div>
         </form>
@@ -146,6 +149,7 @@ export default function LendingPage() {
                   <div className="detail-row"><span className="detail-label">Plazo Mínimo</span><span className="detail-value">{selected.min_loan_term || '—'}</span></div>
                   <div className="detail-row"><span className="detail-label">Monto Mínimo</span><span className="detail-value">{selected.min_loan_amount || '—'}</span></div>
                   <div className="detail-row"><span className="detail-label">Puntos Originarios</span><span className="detail-value">{selected.origination_points || '—'}</span></div>
+                  <div className="detail-row"><span className="detail-label">Estados donde Trabajan</span><span className="detail-value">{selected.work_states || '—'}</span></div>
                   {selected.notes && <div className="detail-row"><span className="detail-label">Notas</span><span className="detail-value">{selected.notes}</span></div>}
                 </div>
                 <div className="modal-footer"><button className="btn" onClick={() => { setSelected(null); setEditMode(false); }}>Cerrar</button><button className="btn btn-primary" onClick={startEdit}>Editar</button></div>
@@ -164,7 +168,7 @@ export default function LendingPage() {
                 <div className="field"><label>Plazo Mínimo</label><input type="text" value={editForm.min_loan_term || ''} onChange={e => updateEditField('min_loan_term', e.target.value)} /></div>
                 <div className="field"><label>Monto Mínimo</label><input type="text" value={editForm.min_loan_amount || ''} onChange={e => updateEditField('min_loan_amount', e.target.value)} /></div>
                 <div className="field"><label>Puntos Originarios</label><input type="text" value={editForm.origination_points || ''} onChange={e => updateEditField('origination_points', e.target.value)} /></div>
-              </div><div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div></div>
+              </div><div className="field"><label>Estados donde Trabajan</label><input type="text" value={editForm.work_states || ''} onChange={e => updateEditField('work_states', e.target.value)} /></div><div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div></div>
               <div className="modal-footer"><button type="button" className="btn" onClick={() => setEditMode(false)}>Cancelar</button><button type="submit" className="btn btn-primary">Guardar cambios</button></div></form>
             )}
           </div>

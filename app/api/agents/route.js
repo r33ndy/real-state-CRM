@@ -7,14 +7,15 @@ export async function GET(request) {
   if (!session) return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
 
   const supabase = getSupabaseAdmin();
-  const url = new URL(request.url);
-  const viewAs = url.searchParams.get('viewAs');
+  const { searchParams } = new URL(request.url);
+  const viewAsUserId = searchParams.get('user_id');
 
   let query = supabase.from('agents').select('*').order('created_at', { ascending: false });
-  if (session.role !== 'admin') {
+
+  if (session.role === 'admin' && viewAsUserId) {
+    query = query.eq('created_by', parseInt(viewAsUserId));
+  } else {
     query = query.eq('created_by', session.id);
-  } else if (viewAs) {
-    query = query.eq('created_by', viewAs);
   }
 
   const { data, error } = await query;
@@ -30,6 +31,8 @@ export async function POST(request) {
     const body = await request.json();
     if (!body.name) return NextResponse.json({ error: 'El nombre es obligatorio' }, { status: 400 });
 
+    const ownerId = (session.role === 'admin' && body.created_for) ? parseInt(body.created_for) : session.id;
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('agents')
@@ -41,7 +44,7 @@ export async function POST(request) {
         city: body.city || null,
         agent_type: body.agent_type || 'Listing Agent',
         notes: body.notes || null,
-        created_by: session.id,
+        created_by: ownerId,
       })
       .select()
       .single();
