@@ -61,8 +61,12 @@ export default function EmpleadosPage() {
   }
 
   async function deleteUser(user) {
-    if (!confirm(`¿Eliminar a ${user.name}?`)) return;
-    await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+    if (!confirm(`⚠️ ¿Eliminar a "${user.name}"?\n\nEsto eliminará TODOS sus registros en:\n• Evaluación de mercado\n• Profesionales\n• Contratistas\n• Inversionistas\n• Lending\n• Agents\n\nEsta acción no se puede deshacer.`)) return;
+    setMessage(null);
+    const res = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
+    setMessage({ type: 'success', text: `Usuario "${user.name}" y todos sus registros eliminados exitosamente` });
     loadUsers();
   }
 

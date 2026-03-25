@@ -52,8 +52,29 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
     const supabase = getSupabaseAdmin();
+
+    // Prevent deleting yourself
+    if (parseInt(id) === session.id) {
+      return NextResponse.json({ error: 'No puedes eliminarte a ti mismo' }, { status: 400 });
+    }
+
+    // Delete all records from all tables for this user (cascade)
+    const tables = ['market_evaluations', 'professionals', 'contractors', 'investors', 'lending', 'agents'];
+    const deleteResults = await Promise.all(
+      tables.map(table => supabase.from(table).delete().eq('created_by', id))
+    );
+
+    // Check for errors in cascade deletes
+    for (let i = 0; i < deleteResults.length; i++) {
+      if (deleteResults[i].error) {
+        return NextResponse.json({ error: `Error al eliminar registros de ${tables[i]}: ${deleteResults[i].error.message}` }, { status: 500 });
+      }
+    }
+
+    // Now delete the user
     const { error } = await supabase.from('users').delete().eq('id', id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Error del servidor' }, { status: 500 });
