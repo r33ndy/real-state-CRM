@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { getSession, hashPassword } from '@/lib/auth';
+import { sendWelcomeEmail } from '@/lib/email';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
@@ -53,7 +54,12 @@ export async function POST(request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ user }, { status: 201 });
+    // Send welcome email with credentials (non-blocking)
+    sendWelcomeEmail({ name, email: email.toLowerCase().trim(), password }).catch(err => {
+      console.error('Failed to send welcome email:', err);
+    });
+
+    return NextResponse.json({ user, emailSent: true }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Error del servidor' }, { status: 500 });
   }

@@ -45,7 +45,7 @@ export default function EmpleadosPage() {
       setMessage({ type: 'error', text: data.error });
       return;
     }
-    setMessage({ type: 'success', text: `Usuario "${data.user.name}" creado exitosamente` });
+    setMessage({ type: 'success', text: `✅ Usuario "${data.user.name}" creado exitosamente. Se envió un correo de bienvenida con sus credenciales a ${data.user.email}` });
     setForm({ name: '', email: '', password: '', phone: '' });
     loadUsers();
   }
