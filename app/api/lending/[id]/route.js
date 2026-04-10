@@ -18,7 +18,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const allowed = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'work_states', 'notes'];
+    const allowed = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'work_states', 'application_link', 'notes'];
     const updates = {};
     allowed.forEach(key => { if (body[key] !== undefined) updates[key] = body[key]; });
 

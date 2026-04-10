@@ -50,6 +50,7 @@ export async function POST(request) {
         min_loan_amount: body.min_loan_amount || null,
         origination_points: body.origination_points || null,
         work_states: body.work_states || null,
+        application_link: body.application_link || null,
         notes: body.notes || null,
         created_by: ownerId,
       })

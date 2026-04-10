@@ -1,16 +1,28 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 import ProgressSummary from '@/components/ProgressSummary';
 
-const LOAN_TYPES = ['Hard Money', 'Convencional', 'FHA', 'VA', 'USDA', 'Bridge Loan', 'DSCR', 'Comercial', 'Otro'];
-const LENDING_FIELDS = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'work_states', 'notes'];
+const LOAN_TYPES = ['Hard Money', 'Convencional', 'FHA', 'VA', 'USDA', 'Bridge Loan', 'DSCR', 'Comercial', 'Private Lender', 'Otro'];
+const LENDING_FIELDS = ['company', 'phone', 'email', 'loan_type', 'max_loan_amount', 'ltv_percentage', 'estimated_closing_time', 'interest_rate', 'max_loan_term', 'min_loan_term', 'min_loan_amount', 'origination_points', 'work_states', 'application_link', 'notes'];
 
 function getCompletion(record, fields) {
   const filled = fields.filter(f => record[f] !== null && record[f] !== undefined && record[f] !== '').length;
   return Math.round((filled / fields.length) * 100);
 }
 function completionClass(pct) { return pct >= 80 ? 'high' : pct >= 50 ? 'mid' : 'low'; }
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function getFileIcon(type) {
+  if (type === 'application/pdf') return '📄';
+  if (type?.includes('spreadsheet') || type?.includes('excel') || type?.includes('csv')) return '📊';
+  return '📎';
+}
 
 export default function LendingPage() {
   const [records, setRecords] = useState([]);
@@ -20,12 +32,16 @@ export default function LendingPage() {
   const [selected, setSelected] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({});
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const viewAsUserId = useViewAsUser();
   const [form, setForm] = useState({
     company: '', phone: '', email: '', loan_type: 'Hard Money',
     max_loan_amount: '', ltv_percentage: '', estimated_closing_time: '',
     interest_rate: '', max_loan_term: '', min_loan_term: '',
-    min_loan_amount: '', origination_points: '', work_states: '', notes: ''
+    min_loan_amount: '', origination_points: '', work_states: '',
+    application_link: '', notes: ''
   });
 
   useEffect(() => { fetch('/api/auth/me').then(r => r.json()).then(data => setUser(data.user)); }, []);
@@ -48,7 +64,7 @@ export default function LendingPage() {
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Lending "${data.lending.company}" registrado exitosamente` });
     setRecords(prev => [data.lending, ...prev]);
-    setForm({ company: '', phone: '', email: '', loan_type: 'Hard Money', max_loan_amount: '', ltv_percentage: '', estimated_closing_time: '', interest_rate: '', max_loan_term: '', min_loan_term: '', min_loan_amount: '', origination_points: '', work_states: '', notes: '' });
+    setForm({ company: '', phone: '', email: '', loan_type: 'Hard Money', max_loan_amount: '', ltv_percentage: '', estimated_closing_time: '', interest_rate: '', max_loan_term: '', min_loan_term: '', min_loan_amount: '', origination_points: '', work_states: '', application_link: '', notes: '' });
   }
 
   async function handleDelete(id) {
@@ -58,7 +74,14 @@ export default function LendingPage() {
     if (selected?.id === id) setSelected(null);
   }
 
-  function openDetail(rec) { setSelected(rec); setEditMode(false); setEditForm({ ...rec }); }
+  async function openDetail(rec) {
+    setSelected(rec); setEditMode(false); setEditForm({ ...rec });
+    // Load files
+    const res = await fetch(`/api/lending/${rec.id}/files`);
+    const data = await res.json();
+    setFiles(data.files || []);
+  }
+
   function startEdit() { setEditMode(true); setEditForm({ ...selected }); }
 
   async function handleUpdate(e) {
@@ -68,6 +91,26 @@ export default function LendingPage() {
     setRecords(prev => prev.map(r => r.id === selected.id ? { ...r, ...editForm } : r));
     setSelected({ ...selected, ...editForm }); setEditMode(false);
     setMessage({ type: 'success', text: 'Registro actualizado exitosamente' });
+  }
+
+  async function handleFileUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file || !selected) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`/api/lending/${selected.id}/files`, { method: 'POST', body: formData });
+    const data = await res.json();
+    setUploading(false);
+    if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
+    setFiles(prev => [data.file, ...prev]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  async function handleFileDelete(fileId) {
+    if (!confirm('¿Eliminar este archivo?')) return;
+    const res = await fetch(`/api/lending/${selected.id}/files?fileId=${fileId}`, { method: 'DELETE' });
+    if (res.ok) setFiles(prev => prev.filter(f => f.id !== fileId));
   }
 
   if (!user || loading) return <div className="empty-state"><div className="spinner" style={{ width: 24, height: 24, margin: '0 auto' }}></div></div>;
@@ -102,6 +145,7 @@ export default function LendingPage() {
             <div className="field"><label>Punto de Originario</label><input type="text" placeholder="Ej. 2 puntos" value={form.origination_points} onChange={e => updateField('origination_points', e.target.value)} /></div>
           </div>
           <div className="field"><label>Estados donde Trabajan</label><input type="text" placeholder="Ej. Florida, Texas, New York" value={form.work_states} onChange={e => updateField('work_states', e.target.value)} /></div>
+          <div className="field"><label>🔗 Link de Aplicación</label><input type="url" placeholder="https://ejemplo.com/aplicar" value={form.application_link} onChange={e => updateField('application_link', e.target.value)} /></div>
           <div className="field"><label>Notas</label><textarea rows="2" placeholder="Observaciones adicionales..." value={form.notes} onChange={e => updateField('notes', e.target.value)}></textarea></div>
           <div className="btn-group"><button type="submit" className="btn btn-primary">Guardar lending</button></div>
         </form>
@@ -131,7 +175,7 @@ export default function LendingPage() {
 
       {selected && (
         <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) { setSelected(null); setEditMode(false); } }}>
-          <div className="modal">
+          <div className="modal" style={{ maxWidth: '640px' }}>
             <div className="modal-header"><h2>{editMode ? 'Editar lending' : 'Información del lending'}</h2><button className="modal-close" onClick={() => { setSelected(null); setEditMode(false); }}>✕</button></div>
             {!editMode ? (
               <>
@@ -150,7 +194,60 @@ export default function LendingPage() {
                   <div className="detail-row"><span className="detail-label">Monto Mínimo</span><span className="detail-value">{selected.min_loan_amount || '—'}</span></div>
                   <div className="detail-row"><span className="detail-label">Puntos Originarios</span><span className="detail-value">{selected.origination_points || '—'}</span></div>
                   <div className="detail-row"><span className="detail-label">Estados donde Trabajan</span><span className="detail-value">{selected.work_states || '—'}</span></div>
+                  <div className="detail-row">
+                    <span className="detail-label">🔗 Link de Aplicación</span>
+                    <span className="detail-value">
+                      {selected.application_link ? (
+                        <a href={selected.application_link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>
+                          {selected.application_link} ↗
+                        </a>
+                      ) : '—'}
+                    </span>
+                  </div>
                   {selected.notes && <div className="detail-row"><span className="detail-label">Notas</span><span className="detail-value">{selected.notes}</span></div>}
+
+                  {/* Files Section */}
+                  <div style={{ margin: '20px 0 10px', fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600 }}>📎 Archivos adjuntos</div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px' }}>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.xls,.xlsx,.csv"
+                      onChange={handleFileUpload}
+                      style={{ display: 'none' }}
+                    />
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      style={{ fontSize: '12px' }}
+                    >
+                      {uploading ? '⏳ Subiendo...' : '📤 Subir archivo'}
+                    </button>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>PDF, Excel o CSV — máx. 10MB</span>
+                  </div>
+                  {files.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {files.map(f => (
+                        <div key={f.id} style={{
+                          display: 'flex', alignItems: 'center', gap: '10px',
+                          padding: '10px 12px', borderRadius: '8px',
+                          background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)'
+                        }}>
+                          <span style={{ fontSize: '18px' }}>{getFileIcon(f.file_type)}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '13px', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.file_name}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{formatFileSize(f.file_size)} · {new Date(f.created_at).toLocaleDateString()}</div>
+                          </div>
+                          <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="btn btn-sm" style={{ fontSize: '11px', textDecoration: 'none' }}>Descargar</a>
+                          <button className="btn btn-sm btn-danger" style={{ fontSize: '11px' }} onClick={() => handleFileDelete(f.id)}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', padding: '8px 0' }}>Sin archivos adjuntos</div>
+                  )}
                 </div>
                 <div className="modal-footer"><button className="btn" onClick={() => { setSelected(null); setEditMode(false); }}>Cerrar</button><button className="btn btn-primary" onClick={startEdit}>Editar</button></div>
               </>
@@ -168,7 +265,10 @@ export default function LendingPage() {
                 <div className="field"><label>Plazo Mínimo</label><input type="text" value={editForm.min_loan_term || ''} onChange={e => updateEditField('min_loan_term', e.target.value)} /></div>
                 <div className="field"><label>Monto Mínimo</label><input type="text" value={editForm.min_loan_amount || ''} onChange={e => updateEditField('min_loan_amount', e.target.value)} /></div>
                 <div className="field"><label>Puntos Originarios</label><input type="text" value={editForm.origination_points || ''} onChange={e => updateEditField('origination_points', e.target.value)} /></div>
-              </div><div className="field"><label>Estados donde Trabajan</label><input type="text" value={editForm.work_states || ''} onChange={e => updateEditField('work_states', e.target.value)} /></div><div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div></div>
+              </div>
+              <div className="field"><label>Estados donde Trabajan</label><input type="text" value={editForm.work_states || ''} onChange={e => updateEditField('work_states', e.target.value)} /></div>
+              <div className="field"><label>🔗 Link de Aplicación</label><input type="url" placeholder="https://ejemplo.com/aplicar" value={editForm.application_link || ''} onChange={e => updateEditField('application_link', e.target.value)} /></div>
+              <div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div></div>
               <div className="modal-footer"><button type="button" className="btn" onClick={() => setEditMode(false)}>Cancelar</button><button type="submit" className="btn btn-primary">Guardar cambios</button></div></form>
             )}
           </div>
