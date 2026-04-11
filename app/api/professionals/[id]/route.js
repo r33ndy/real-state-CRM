@@ -19,7 +19,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const allowed = ['category', 'name', 'phone', 'email', 'company', 'city', 'state', 'notes'];
+    const allowed = ['category', 'name', 'phone', 'email', 'company', 'city', 'state', 'policy_type', 'notes'];
     const updates = {};
     allowed.forEach(key => {
       if (body[key] !== undefined) updates[key] = body[key];

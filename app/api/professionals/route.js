@@ -29,7 +29,7 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const { category, name, phone, email, company, city, state, notes } = body;
+    const { category, name, phone, email, company, city, state, policy_type, notes } = body;
 
     if (!category || !name) {
       return NextResponse.json({ error: 'Categoría y nombre son requeridos' }, { status: 400 });
@@ -40,7 +40,7 @@ export async function POST(request) {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('professionals')
-      .insert({ category, name, phone, email, company, city, state, notes, created_by: ownerId })
+      .insert({ category, name, phone, email, company, city, state, policy_type: policy_type || null, notes, created_by: ownerId })
       .select()
       .single();
 

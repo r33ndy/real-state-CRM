@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useViewAsUser, buildApiUrl } from '@/lib/useViewAsUser';
 import ProgressSummary from '@/components/ProgressSummary';
 
-const CATEGORIES = ['Ingeniero', 'Arquitecto', 'Compañía de Título', 'Abogado', 'Inspector de Limpieza', 'Inspector'];
+const CATEGORIES = ['Ingeniero', 'Arquitecto', 'Compañía de Título', 'Abogado', 'Inspector de Limpieza', 'Inspector', 'Insurance Broker'];
+const POLICY_TYPES = ["Builder's Risk", 'Vacant House'];
 import { US_STATES as STATES } from '@/lib/constants';
 const PROF_FIELDS = ['category', 'name', 'phone', 'email', 'company', 'city', 'state', 'notes'];
 function getCompletion(record, fields) {
@@ -21,7 +22,7 @@ export default function ProfesionalesPage() {
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState({});
   const viewAsUserId = useViewAsUser();
-  const [form, setForm] = useState({ category: 'Ingeniero', name: '', phone: '', email: '', company: '', city: '', state: '', notes: '' });
+  const [form, setForm] = useState({ category: 'Ingeniero', name: '', phone: '', email: '', company: '', city: '', state: '', policy_type: '', notes: '' });
 
   useEffect(() => { fetch('/api/auth/me').then(r => r.json()).then(data => setUser(data.user)); }, []);
 
@@ -43,7 +44,7 @@ export default function ProfesionalesPage() {
     if (!res.ok) { setMessage({ type: 'error', text: data.error }); return; }
     setMessage({ type: 'success', text: `Profesional "${data.professional.name}" registrado exitosamente` });
     setProfessionals(prev => [data.professional, ...prev]);
-    setForm({ category: 'Ingeniero', name: '', phone: '', email: '', company: '', city: '', state: '', notes: '' });
+    setForm({ category: 'Ingeniero', name: '', phone: '', email: '', company: '', city: '', state: '', policy_type: '', notes: '' });
   }
 
   async function handleDelete(id) {
@@ -70,7 +71,7 @@ export default function ProfesionalesPage() {
 
   return (
     <>
-      <div className="page-header"><div><div className="page-title">Directorio de profesionales</div><div className="page-subtitle">Ingenieros, Arquitectos, Compañías de Título, Abogados, Inspectores</div></div>{isViewingOther && <ProgressSummary records={professionals} fields={PROF_FIELDS} label="Progreso profesionales" />}</div>
+      <div className="page-header"><div><div className="page-title">Directorio de profesionales</div><div className="page-subtitle">Ingenieros, Arquitectos, Compañías de Título, Abogados, Inspectores, Insurance Broker</div></div>{isViewingOther && <ProgressSummary records={professionals} fields={PROF_FIELDS} label="Progreso profesionales" />}</div>
 
       {isViewingOther && (<div className="alert alert-info" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--accent-amber)' }}>🔍 Viendo datos del usuario seleccionado.</div>)}
       {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}
@@ -87,6 +88,9 @@ export default function ProfesionalesPage() {
             <div className="field"><label>Estado</label><select value={form.state} onChange={e => updateField('state', e.target.value)}><option value="">-- Seleccionar --</option>{STATES.map(s => <option key={s}>{s}</option>)}</select></div>
             <div className="field"><label>Ciudad de servicio</label><input type="text" placeholder="Ej. Miami" value={form.city} onChange={e => updateField('city', e.target.value)} /></div>
           </div>
+          {form.category === 'Insurance Broker' && (
+            <div className="field" style={{ marginTop: '8px' }}><label>Tipo de Póliza</label><select value={form.policy_type} onChange={e => updateField('policy_type', e.target.value)}><option value="">-- Seleccionar --</option>{POLICY_TYPES.map(p => <option key={p}>{p}</option>)}</select></div>
+          )}
           <div className="field"><label>Notas</label><textarea rows="2" placeholder="Experiencia, referencias..." value={form.notes} onChange={e => updateField('notes', e.target.value)}></textarea></div>
           <div className="btn-group"><button type="submit" className="btn btn-primary">Guardar profesional</button></div>
         </form>
@@ -115,6 +119,7 @@ export default function ProfesionalesPage() {
                 <div className="detail-row"><span className="detail-label">Email</span><span className="detail-value">{selected.email || '—'}</span></div>
                 <div className="detail-row"><span className="detail-label">Compañía</span><span className="detail-value">{selected.company || '—'}</span></div>
                 <div className="detail-row"><span className="detail-label">Ciudad</span><span className="detail-value">{selected.city}{selected.state ? `, ${selected.state}` : ''}</span></div>
+                {selected.category === 'Insurance Broker' && <div className="detail-row"><span className="detail-label">Tipo de Póliza</span><span className="detail-value"><span className="tag">{selected.policy_type || '—'}</span></span></div>}
                 {selected.notes && <div className="detail-row"><span className="detail-label">Notas</span><span className="detail-value">{selected.notes}</span></div>}
               </div><div className="modal-footer"><button className="btn" onClick={() => { setSelected(null); setEditMode(false); }}>Cerrar</button><button className="btn btn-primary" onClick={startEdit}>Editar</button></div></>
             ) : (
@@ -126,7 +131,11 @@ export default function ProfesionalesPage() {
                 <div className="field"><label>Compañía</label><input type="text" value={editForm.company || ''} onChange={e => updateEditField('company', e.target.value)} /></div>
                 <div className="field"><label>Estado</label><select value={editForm.state || ''} onChange={e => updateEditField('state', e.target.value)}><option value="">--</option>{STATES.map(s => <option key={s}>{s}</option>)}</select></div>
                 <div className="field"><label>Ciudad</label><input type="text" value={editForm.city || ''} onChange={e => updateEditField('city', e.target.value)} /></div>
-              </div><div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div></div>
+              </div>
+              {editForm.category === 'Insurance Broker' && (
+                <div className="field"><label>Tipo de Póliza</label><select value={editForm.policy_type || ''} onChange={e => updateEditField('policy_type', e.target.value)}><option value="">-- Seleccionar --</option>{POLICY_TYPES.map(p => <option key={p}>{p}</option>)}</select></div>
+              )}
+              <div className="field"><label>Notas</label><textarea rows="2" value={editForm.notes || ''} onChange={e => updateEditField('notes', e.target.value)}></textarea></div></div>
               <div className="modal-footer"><button type="button" className="btn" onClick={() => setEditMode(false)}>Cancelar</button><button type="submit" className="btn btn-primary">Guardar cambios</button></div></form>
             )}
           </div>
